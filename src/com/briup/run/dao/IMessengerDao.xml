@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.briup.run.dao.IMessengerDao">
+	<!-- <cache type="com.briup.run.cache.MybatisRedisCache"></cache> -->
+
+	<select id="findOneMemberinfo" parameterType="int" resultType="Memberinfo">
+		select * from memberinfo where id=#{sum}
+	</select>
+
+	<select id="findFriends" parameterType="String" resultType="Memberinfo">
+		select * from memberinfo
+		<where>
+			<if test="param1 != 'unlimited' ">
+				<if test="param1==1">
+					age >= 10 AND age <![CDATA[ <= ]]>
+					19
+				</if>
+				<if test="param1==2">
+					age >= 20 AND age <![CDATA[ <= ]]>
+					29
+				</if>
+				<if test="param1==3">
+					age >= 30 AND age <![CDATA[ <= ]]>
+					39
+				</if>
+			</if>
+			<if test="param2 != 'unlimited' ">
+				AND gender=#{param2}
+			</if>
+			<if test="param3 != 'unlimited' ">
+				AND provincecity=#{param3}
+			</if>
+		</where>
+	</select>
+
+	<insert id="saveMessage" parameterType="Messagerecord">
+		<selectKey keyProperty="id" resultType="Long" order="BEFORE">
+			select
+			SEQ_COMMON.nextval from dual
+		</selectKey>
+		insert into
+		messagerecord(id,sender,receiver,senddate,title,content,senderstatus,receiverstatus,status)
+		values(#{id},#{sender},#{receiver},#{senddate},#{title},#{content},#{senderstatus},#{receiverstatus},#{status})
+	</insert>
+
+	<select id="listSendMessage" parameterType="String" resultType="Messagerecord">
+		select * from messagerecord
+		where
+		sender=#{senderName}
+	</select>
+
+	<select id="findMessage" parameterType="Long" resultType="Messagerecord">
+		select
+		*
+		from messagerecord
+		where
+		id=#{id}
+	</select>
+
+	<select id="listRecieveMessage" parameterType="String"
+		resultType="Messagerecord">
+		select * from messagerecord
+		where
+		receiver=#{receiverName}
+	</select>
+
+	<update id="updateMessage" parameterType="Messagerecord">
+		update messagerecord
+		set
+		status=#{status}
+	</update>
+
+	<delete id="deleteRecieveMessage" parameterType="Long">
+		delete from
+		messagerecord
+		where
+		id=#{id}
+	</delete>
+
+	<delete id="deleteSendMessage" parameterType="Long">
+		delete from
+		messagerecord
+		where
+		id=#{id}
+	</delete>
+
+</mapper>

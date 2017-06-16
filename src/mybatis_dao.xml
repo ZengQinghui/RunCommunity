@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.2.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
+
+	
+    <bean id="dataSource"
+		class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName">
+			<value>oracle.jdbc.driver.OracleDriver</value>
+		</property>
+		<property name="url">
+			<value>jdbc:oracle:thin:@127.0.0.1:1521:XE</value>
+		</property>
+		<property name="username">
+			<value>zqh</value>
+		</property>
+		<property name="password">
+			<value>zqh</value>
+		</property>
+		<!-- 最大连接数 -->
+		<property name="maxActive">
+			<value>80</value>
+		</property>
+		<!-- 最大空闲连接数 -->
+		<property name="maxIdle">
+			<value>20</value>
+		</property>
+		<!-- 最大等待时间:当没有可用连接时,连接池等待连接被归还的最大时间 单位:毫秒 -->
+		<!-- 超过时间则抛出异常,如果设置为-1表示无限等待 -->
+		<property name="maxWait">
+			<value>3000</value>
+		</property>
+	</bean>
+    <!-- 配置sqlsessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">  
+      <property name="dataSource" ref="dataSource" />   
+       <!-- 指定mybatis-config总配置文件，订制的environment在spring容器中不在生效-->  
+      <property  name="configLocation"  value="classpath:mybatis-config.xml"/>  
+     
+     </bean> 
+     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.briup.run.dao"></property>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+    </bean> 
+    <!-- 通过来扫描mapper接口所在的包名，当有多个包的时候，用半角逗号分隔即可
+     然后再次强调下，这种方式的配置，AccountMapper.xml必须和对应的接口放在同一个目录下面
+    -->
+</beans>

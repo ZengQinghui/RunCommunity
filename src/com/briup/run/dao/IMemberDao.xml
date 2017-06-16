@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.briup.run.dao.IMemberDao">
+	<!-- <cache type="com.briup.run.cache.MybatisRedisCache"></cache> -->
+
+	<select id="findMemberinfoByName" parameterType="String"
+		resultType="Memberinfo">
+		select * from memberinfo where nickname=#{name}
+	</select>
+
+	<insert id="saveMemberinfo" parameterType="Memberinfo">
+		<selectKey keyProperty="id" resultType="Long" order="BEFORE">
+			select
+			SEQ_COMMON.nextval from dual
+		</selectKey>
+		insert into
+		memberinfo(id,nickname,password,gender,age,email,provincecity,address,phone,passwordquestion,passwordanswer,recommender,point,registerdate,status,isonline,gradeid)
+		values(#{id},#{nickname},#{password},#{gender},#{age},#{email},#{provincecity},#{address},#{phone},#{passwordquestion},#{passwordanswer},#{recommender},#{point},#{registerdate},#{status},#{isonline},#{graderecord.id})
+	</insert>
+
+	<insert id="savePointrecord" parameterType="Pointrecord">
+		<selectKey keyProperty="id" resultType="Long" order="BEFORE">
+			select
+			SEQ_COMMON.nextval from dual
+		</selectKey>
+		insert into pointrecord(id,nickname,receivedate,pointactionid)
+		values(#{id},#{nickname},#{receivedate},#{pointaction.id})
+	</insert>
+
+	<select id="findPointactionByPointAction" parameterType="String"
+		resultType="Pointaction">
+		select * from pointaction where actionname=#{name}
+	</select>
+
+	<select id="findMemberinfoLevel" parameterType="long"
+		resultType="Graderecord">
+		select * from graderecord where #{point}>minpoint and
+		maxpoint>#{point}
+	</select>
+
+	<update id="updateMemberinfo" parameterType="Memberinfo">
+		update memberinfo set
+		gender=#{gender},email=#{email},provincecity=#{provincecity},address=#{address},phone=#{phone},passwordquestion=#{passwordquestion},passwordanswer=#{passwordanswer}
+		<if test="latestdate !=null">
+			,latestdate=#{latestdate}
+		</if>
+		<if test="nickname!=null">
+			,nickname=#{nickname}
+		</if>
+		<if test="password!=null">
+			,password=#{password}
+		</if>
+		<if test="age!=null">
+			,age=#{age}
+		</if>
+		<if test="graderecord!=null">
+			,gradeid=#{graderecord.id}
+		</if>
+		<if test="point!=null">
+			,point=#{point}
+		</if>
+		where id=#{id}
+	</update>
+
+	<select id="findMemberinfoByNum" parameterType="int" resultType="Memberinfo">
+		select * from (select * from memberinfo order by point desc) where
+		#{num}>=rownum order by point desc
+	</select>
+
+	<select id="findSpace" parameterType="Long" resultType="Memberspace">
+		select *
+		from memberspace
+		where memberid=#{id}
+	</select>
+
+	<insert id="saveSpace" parameterType="Memberspace">
+		<selectKey keyProperty="id" resultType="Long" order="BEFORE">
+			select
+			SEQ_COMMON.nextval from dual
+		</selectKey>
+		insert into
+		memberspace(id,opinion,runtime,runplace,runstar,runhabit,cellphone,icon,memberid)
+		values(#{id},#{opinion},#{runtime},#{runplace},#{runstar},#{runhabit},#{cellphone},#{icon},#{memberinfo.id})
+	</insert>
+
+	<update id="updateSpace" parameterType="Memberspace">
+		update memberspace set
+		opinion=#{opinion},runtime=#{runtime},runplace=#{runplace},runstar=#{runstar},runhabit=#{runhabit},cellphone=#{cellphone},icon=#{icon},memberid=#{memberinfo.id}
+		where id=#{id}
+	</update>
+
+	<select id="findfriend" parameterType="String" resultType="Friendrecord">
+		select * from friendrecord
+		where
+		selfname=#{param1} and
+		friendname=#{param2}
+	</select>
+
+	<insert id="saveFriend" parameterType="Friendrecord">
+		<selectKey keyProperty="id" resultType="Long" order="BEFORE">
+			select
+			SEQ_COMMON.nextval from dual
+		</selectKey>
+		insert into
+		friendrecord(id,selfname,friendname)
+		values(#{id},#{selfname},#{friendname})
+	</insert>
+
+	<select id="listFriend" parameterType="String" resultType="Memberinfo">
+		select nickname,gender,age,provincecity
+		from memberinfo m,friendrecord
+		f
+		where
+		selfname=#{selfname}
+		and
+		m.nickname=f.friendname
+	</select>
+
+	<delete id="deleleFriend" parameterType="Friendrecord">
+		delete from friendrecord
+		where
+		selfname=#{selfname} and friendname=#{friendname}
+	</delete>
+
+	<insert id="saveBlackFriend" parameterType="Blackrecord">
+		<selectKey keyProperty="id" resultType="Long" order="BEFORE">
+			select
+			SEQ_COMMON.nextval from dual
+		</selectKey>
+		insert into
+		blackrecord(id,selfname,blackname)
+		values(#{id},#{selfname},#{blackname})
+	</insert>
+
+	<select id="listBlack" parameterType="String" resultType="Memberinfo">
+		select
+		nickname,gender,age,provincecity
+		from memberinfo m,blackrecord b
+		where
+		selfname=#{selfname}
+		and
+		m.nickname=b.blackname
+	</select>
+
+	<delete id="deleteBlack" parameterType="Blackrecord">
+		delete from blackrecord
+		where
+		selfname=#{selfname} and blackname=#{blackname}
+	</delete>
+
+</mapper>

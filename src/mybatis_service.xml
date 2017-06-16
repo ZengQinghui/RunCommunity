@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+   http://www.springframework.org/schema/beans 
+   http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+   http://www.springframework.org/schema/context 
+   http://www.springframework.org/schema/context/spring-context-3.2.xsd
+   http://www.springframework.org/schema/aop 
+   http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+   http://www.springframework.org/schema/tx
+   http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+
+	<context:annotation-config />
+	
+	<!-- 目标对象 -->
+	<bean id="memberService" class="com.briup.run.service.impl.IMemberServiceImpl">
+	</bean>
+	
+	<bean id="messengerService" class="com.briup.run.service.impl.IMessengerServiceImpl"></bean>
+	
+	<!-- 事务处理类 相当与一个切面类 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 配置事务拦截器 相当于aop配置中advice -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!-- 配置在些方法上面加入哪些事务属性 以及抛出什么异常的时候回滚 -->
+			<tx:method name="register*" propagation="REQUIRED"
+				 />
+			<tx:method name="login*" propagation="REQUIRED"
+				/>
+		</tx:attributes>
+	</tx:advice>
+
+	<!-- 上面配置了切面类以及advice -->
+	<!-- 这里就要做aop的配置了 -->
+	<aop:config>
+		<!-- 配置切入点 -->
+		<aop:pointcut id="myPointCut" expression="execution(* com.briup..*.*(..))" />
+		<!-- 配置事务拦截器在哪一个切入点上起作用 -->
+		<aop:advisor pointcut-ref="myPointCut" advice-ref="txAdvice" />
+	</aop:config>
+
+</beans>
